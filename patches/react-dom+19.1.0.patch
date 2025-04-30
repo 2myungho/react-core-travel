@@ -1,0 +1,80 @@
+diff --git a/node_modules/react-dom/cjs/react-dom-client.development.js b/node_modules/react-dom/cjs/react-dom-client.development.js
+index dd10829..459f085 100644
+--- a/node_modules/react-dom/cjs/react-dom-client.development.js
++++ b/node_modules/react-dom/cjs/react-dom-client.development.js
+@@ -24874,6 +24874,7 @@
+         );
+     }
+     exports.createRoot = function (container, options) {
++      console.log('dev-createRoot: ',container)
+       if (!isValidContainer(container))
+         throw Error("Target container is not a DOM element.");
+       warnIfReactDOMContainerInDEV(container);
+diff --git a/node_modules/react-dom/cjs/react-dom-client.production.js b/node_modules/react-dom/cjs/react-dom-client.production.js
+index 2af1b36..5ba8155 100644
+--- a/node_modules/react-dom/cjs/react-dom-client.production.js
++++ b/node_modules/react-dom/cjs/react-dom-client.production.js
+@@ -3224,10 +3224,12 @@ function cloneUpdateQueue(current, workInProgress) {
+ function createUpdate(lane) {
+   return { lane: lane, tag: 0, payload: null, callback: null, next: null };
+ }
++// enqueueUpdate
+ function enqueueUpdate(fiber, update, lane) {
+   var updateQueue = fiber.updateQueue;
+   if (null === updateQueue) return null;
+   updateQueue = updateQueue.shared;
++  // 렌더 중에 업데이트가 발생했는지 체크하는 로직
+   if (0 !== (executionContext & 2)) {
+     var pending = updateQueue.pending;
+     null === pending
+@@ -3238,6 +3240,7 @@ function enqueueUpdate(fiber, update, lane) {
+     markUpdateLaneFromFiberToRoot(fiber, null, lane);
+     return update;
+   }
++  console.log('사딕-enqueueUpdate-마운트 시 실행 [추후 검증 필요]')
+   enqueueUpdate$1(fiber, updateQueue, update, lane);
+   return getRootForUpdatedFiber(fiber);
+ }
+@@ -14594,6 +14597,8 @@ function createFiberRoot(
+   tag = 1;
+   !0 === isStrictMode && (tag |= 24);
+   isStrictMode = createFiberImplClass(3, null, null, tag);
++  // current 값 초기화
++  console.log('사딕-createFiberRoot-createFiberImplClass: ',isStrictMode)
+   containerInfo.current = isStrictMode;
+   isStrictMode.stateNode = containerInfo;
+   tag = createCache();
+@@ -14605,7 +14610,9 @@ function createFiberRoot(
+     isDehydrated: hydrate,
+     cache: tag
+   };
++  console.log('사딕-createFiberRoot-initializeUpdateQueue ')
+   initializeUpdateQueue(isStrictMode);
++  console.log('사딕-createFiberRoot-containerInfo: ', containerInfo)
+   return containerInfo;
+ }
+ function getContextForSubtree(parentComponent) {
+@@ -14630,6 +14637,7 @@ function updateContainerImpl(
+   callback = void 0 === callback ? null : callback;
+   null !== callback && (container.callback = callback);
+   element = enqueueUpdate(rootFiber, container, lane);
++  console.log('사딕-updateContainerImpl: ', element)
+   null !== element &&
+     (scheduleUpdateOnFiber(element, rootFiber, lane),
+     entangleTransitions(element, rootFiber, lane));
+@@ -15217,6 +15225,7 @@ function ReactDOMRoot(internalRoot) {
+ }
+ ReactDOMHydrationRoot.prototype.render = ReactDOMRoot.prototype.render =
+   function (children) {
++    console.log('사딕-render: ', children)
+     var root = this._internalRoot;
+     if (null === root) throw Error(formatProdErrorMessage(409));
+     var current = root.current,
+@@ -15302,6 +15311,7 @@ if ("undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__) {
+     } catch (err) {}
+ }
+ exports.createRoot = function (container, options) {
++  console.log('사딕-prod-createRoot: ',container)
+   if (!isValidContainer(container)) throw Error(formatProdErrorMessage(299));
+   var isStrictMode = !1,
+     identifierPrefix = "",
