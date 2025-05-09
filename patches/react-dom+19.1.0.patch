@@ -11,7 +11,7 @@ index dd10829..459f085 100644
          throw Error("Target container is not a DOM element.");
        warnIfReactDOMContainerInDEV(container);
 diff --git a/node_modules/react-dom/cjs/react-dom-client.production.js b/node_modules/react-dom/cjs/react-dom-client.production.js
-index 2af1b36..5ba8155 100644
+index 2af1b36..e7821ef 100644
 --- a/node_modules/react-dom/cjs/react-dom-client.production.js
 +++ b/node_modules/react-dom/cjs/react-dom-client.production.js
 @@ -3224,10 +3224,12 @@ function cloneUpdateQueue(current, workInProgress) {
@@ -27,15 +27,113 @@ index 2af1b36..5ba8155 100644
    if (0 !== (executionContext & 2)) {
      var pending = updateQueue.pending;
      null === pending
-@@ -3238,6 +3240,7 @@ function enqueueUpdate(fiber, update, lane) {
+@@ -3238,7 +3240,9 @@ function enqueueUpdate(fiber, update, lane) {
      markUpdateLaneFromFiberToRoot(fiber, null, lane);
      return update;
    }
 +  console.log('사딕-enqueueUpdate-마운트 시 실행 [추후 검증 필요]')
    enqueueUpdate$1(fiber, updateQueue, update, lane);
++  // 마운트 시에는 updataQueue에 변경점 없음
    return getRootForUpdatedFiber(fiber);
  }
-@@ -14594,6 +14597,8 @@ function createFiberRoot(
+ function entangleTransitions(root, fiber, lane) {
+@@ -3500,6 +3504,7 @@ function renderWithHooks(
+       : HooksDispatcherOnUpdate;
+   shouldDoubleInvokeUserFnsInHooksDEV = !1;
+   nextRenderLanes = Component(props, secondArg);
++  console.log('사딕-renderWithHooks 실행: ', nextRenderLanes)
+   shouldDoubleInvokeUserFnsInHooksDEV = !1;
+   didScheduleRenderPhaseUpdateDuringThisPass &&
+     (nextRenderLanes = renderWithHooksAgain(
+@@ -6008,6 +6013,12 @@ function throwException(
+ var SelectiveHydrationException = Error(formatProdErrorMessage(461)),
+   didReceiveUpdate = !1;
+ function reconcileChildren(current, workInProgress, nextChildren, renderLanes) {
++  console.log('---------------------------------------')
++  console.log('사딕-reconcileChildren 실행: ', current)
++  console.log('사딕-reconcileChildren 실행: ', workInProgress)
++  console.log('사딕-reconcileChildren 실행: ', nextChildren)
++  console.log('사딕-reconcileChildren 실행: ', renderLanes)
++  console.log('---------------------------------------')
+   workInProgress.child =
+     null === current
+       ? mountChildFibers(workInProgress, null, nextChildren, renderLanes)
+@@ -10273,6 +10284,7 @@ function scheduleUpdateOnFiber(root, fiber, lane) {
+       ensureRootIsScheduled(root);
+ }
+ function performWorkOnRoot(root$jscomp$0, lanes, forceSync) {
++  console.log('사딕-performWorkOnRoot 실행')
+   if (0 !== (executionContext & 6)) throw Error(formatProdErrorMessage(327));
+   var shouldTimeSlice =
+       (!forceSync &&
+@@ -10416,22 +10428,22 @@ function performWorkOnRoot(root$jscomp$0, lanes, forceSync) {
+           );
+           break a;
+         }
+-        commitRootWhenReady(
+-          shouldTimeSlice,
+-          forceSync,
+-          workInProgressRootRecoverableErrors,
+-          workInProgressTransitions,
+-          workInProgressRootDidIncludeRecursiveRenderUpdate,
+-          lanes,
+-          workInProgressDeferredLane,
+-          workInProgressRootInterleavedUpdatedLanes,
+-          workInProgressSuspendedRetryLanes,
+-          workInProgressRootDidSkipSuspendedSiblings,
+-          renderWasConcurrent,
+-          0,
+-          -0,
+-          0
+-        );
++        // commitRootWhenReady(
++        //   shouldTimeSlice,
++        //   forceSync,
++        //   workInProgressRootRecoverableErrors,
++        //   workInProgressTransitions,
++        //   workInProgressRootDidIncludeRecursiveRenderUpdate,
++        //   lanes,
++        //   workInProgressDeferredLane,
++        //   workInProgressRootInterleavedUpdatedLanes,
++        //   workInProgressSuspendedRetryLanes,
++        //   workInProgressRootDidSkipSuspendedSiblings,
++        //   renderWasConcurrent,
++        //   0,
++        //   -0,
++        //   0
++        // );
+       }
+     }
+     break;
+@@ -11455,11 +11467,13 @@ var firstScheduledRoot = null,
+   isFlushingWork = !1,
+   currentEventTransitionLane = 0;
+ function ensureRootIsScheduled(root) {
++  // 사딕-ensureRootIsScheduled 업데이트가 필요한 root가 이미 스케줄링 되어 있는지 확인하고 스케줄링
+   root !== lastScheduledRoot &&
+     null === root.next &&
+     (null === lastScheduledRoot
+       ? (firstScheduledRoot = lastScheduledRoot = root)
+       : (lastScheduledRoot = lastScheduledRoot.next = root));
++  // 사딕-ensureRootIsScheduled 업데이트가 필요하는 플래그
+   mightHavePendingSyncWork = !0;
+   didScheduleMicrotask ||
+     ((didScheduleMicrotask = !0), scheduleImmediateRootScheduleTask());
+@@ -11625,9 +11639,10 @@ function performWorkOnRootViaSchedulerTask(root, didTimeout) {
+   if (0 === workInProgressRootRenderLanes$jscomp$0) return null;
+   performWorkOnRoot(root, workInProgressRootRenderLanes$jscomp$0, didTimeout);
+   scheduleTaskForRootDuringMicrotask(root, now());
+-  return null != root.callbackNode && root.callbackNode === originalCallbackNode
+-    ? performWorkOnRootViaSchedulerTask.bind(null, root)
+-    : null;
++    // 사딕 - 작업 중단 시 재귀 함수 주석
++  // return null != root.callbackNode && root.callbackNode === originalCallbackNode
++  //   ? performWorkOnRootViaSchedulerTask.bind(null, root)
++  //   : null;
+ }
+ function performSyncWorkOnRoot(root, lanes) {
+   if (flushPendingEffects()) return null;
+@@ -14594,6 +14609,8 @@ function createFiberRoot(
    tag = 1;
    !0 === isStrictMode && (tag |= 24);
    isStrictMode = createFiberImplClass(3, null, null, tag);
@@ -44,7 +142,7 @@ index 2af1b36..5ba8155 100644
    containerInfo.current = isStrictMode;
    isStrictMode.stateNode = containerInfo;
    tag = createCache();
-@@ -14605,7 +14610,9 @@ function createFiberRoot(
+@@ -14605,7 +14622,9 @@ function createFiberRoot(
      isDehydrated: hydrate,
      cache: tag
    };
@@ -54,7 +152,7 @@ index 2af1b36..5ba8155 100644
    return containerInfo;
  }
  function getContextForSubtree(parentComponent) {
-@@ -14630,6 +14637,7 @@ function updateContainerImpl(
+@@ -14630,6 +14649,7 @@ function updateContainerImpl(
    callback = void 0 === callback ? null : callback;
    null !== callback && (container.callback = callback);
    element = enqueueUpdate(rootFiber, container, lane);
@@ -62,15 +160,19 @@ index 2af1b36..5ba8155 100644
    null !== element &&
      (scheduleUpdateOnFiber(element, rootFiber, lane),
      entangleTransitions(element, rootFiber, lane));
-@@ -15217,6 +15225,7 @@ function ReactDOMRoot(internalRoot) {
- }
+@@ -15218,9 +15238,11 @@ function ReactDOMRoot(internalRoot) {
  ReactDOMHydrationRoot.prototype.render = ReactDOMRoot.prototype.render =
    function (children) {
-+    console.log('사딕-render: ', children)
      var root = this._internalRoot;
++    console.log('사딕-render-root: ', root)
      if (null === root) throw Error(formatProdErrorMessage(409));
      var current = root.current,
-@@ -15302,6 +15311,7 @@ if ("undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__) {
+       lane = requestUpdateLane();
++      console.log('사딕-requestUpdateLane: ', lane)
+     updateContainerImpl(current, lane, children, root, null, null);
+   };
+ ReactDOMHydrationRoot.prototype.unmount = ReactDOMRoot.prototype.unmount =
+@@ -15302,6 +15324,7 @@ if ("undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__) {
      } catch (err) {}
  }
  exports.createRoot = function (container, options) {
